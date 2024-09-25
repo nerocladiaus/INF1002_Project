@@ -63,12 +63,24 @@ class Bullet:
 # Enemy class
 class Enemy:
     def __init__(self):
-        self.x = random.randint(0, SCREEN_WIDTH - ENEMY_SIZE)
-        self.y = random.randint(0, SCREEN_HEIGHT - ENEMY_SIZE)
+        edge = random.choice(['left', 'right', 'top', 'bottom'])
         self.size = ENEMY_SIZE
         self.speed = 2
         self.color = RED
-    
+        
+        if edge == 'left':
+            self.x = -self.size  # Start just off the left edge
+            self.y = random.randint(0, SCREEN_HEIGHT - self.size)
+        elif edge == 'right':
+            self.x = SCREEN_WIDTH
+            self.y = random.randint(0, SCREEN_HEIGHT - self.size)
+        elif edge == 'top':
+            self.x = random.randint(0, SCREEN_WIDTH - self.size)
+            self.y = -self.size  # Start just off the top edge
+        elif edge == 'bottom':
+            self.x = random.randint(0, SCREEN_WIDTH - self.size)
+            self.y = SCREEN_HEIGHT  # Start just off the bottom edge
+
     def move(self, player):
         # Move towards the player
         angle = math.atan2(player.y - self.y, player.x - self.x)
