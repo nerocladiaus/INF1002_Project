@@ -14,11 +14,10 @@ class Player():
     
     #check player status
     def player_alive(self):
-        if self.hp <= 0:
+        if self.hp <= 0:        #Player Dead
             self.color = (255,0,0)
             self.dead = True
-            #Player Dead
-        elif self.tick < 16:
+        elif self.tick < 4:
             self.color = "YELLOW"
         else:
             self.color = "GREEN"
