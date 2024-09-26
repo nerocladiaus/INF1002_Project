@@ -1,5 +1,6 @@
 import pygame
 from player import Player
+from enemy import Enemy
 
 pygame.init()
 
@@ -10,19 +11,28 @@ class Game:
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
         self.running = True
         self.clock = pygame.time.Clock()
+        
     
     def game_loop(self):
-        player = Player()
-
+        self.player = Player()
+        self.enemies = []
+        self.enemySpawnTimer = 0
         
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False        
 
-            pos = pygame.mouse.get_pos()
+            if self.enemySpawnTimer >= 50:
+                self.enemies.append(Enemy(self.screenWidth,self.screenHeight))
+                print("Enemy spawn")
+                self.enemySpawnTimer = 0
+            else:
+                self.enemySpawnTimer += 1
+                #print(self.enemySpawnTimer)
             
             #Collison Testing Shift to enenmy Class
+            pos = pygame.mouse.get_pos()
             enemy_rect = pygame.Rect(0, 0, 25, 25)
             enemy_rect.center = pos
             """if player.color == "YELLOW" and player.tick >= 4:
@@ -40,7 +50,10 @@ class Game:
             #Draw Sprites to game window and updates.
             self.screen.fill((0,0,0))
             pygame.draw.rect(self.screen, "BLUE" , enemy_rect)    
-            player.playerUpdate(self.screen,enemy_rect)     #Change to a list containing enemy
+            self.player.playerUpdate(self.screen,enemy_rect)     #Change to a list containing enemy
+            #self.enemies.update(self.screen,self.screenHeight,self.screenWidth)
+            for enemy in self.enemies:
+                enemy.update(self.screen,self.player)
             self.display.blit(self.screen, (0,0))
             pygame.display.flip()
             self.clock.tick(60) 
