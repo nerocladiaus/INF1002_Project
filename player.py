@@ -3,9 +3,7 @@ import pygame
 class Player():
     def __init__(self):
         #self.image =  Set image to put
-        self.rect = pygame.Rect(0, 0, 75, 100)
         self.color = (0,255,0)
-        self.rect.center = (640,360)
         self.max_hp = 100
         self.hp = self.max_hp
         self.dead = False
@@ -13,6 +11,7 @@ class Player():
         self.tick = 0
         self.rectsizex, self.rectsizey = 40,70
         self.x , self.y = 640,360
+        self.rect = pygame.Rect(self.x, self.y, 40, 70)
 
     def draw_health_bar(self, surface):
         health_percentage = self.hp / self.max_hp
