@@ -3,14 +3,20 @@ import pygame
 class Player():
     def __init__(self):
         #self.image =  Set image to put
-        self.rect = pygame.Rect(0, 0, 75, 100)
         self.color = (0,255,0)
-        self.rect.center = (640,360)
         self.max_hp = 100
         self.hp = self.max_hp
         self.dead = False
         self.score = 0
         self.tick = 0
+        self.rectsizex, self.rectsizey = 40,70
+        self.x , self.y = 640,360
+        self.rect = pygame.Rect(self.x, self.y, 40, 70)
+
+    def draw_health_bar(self, surface):
+        health_percentage = self.hp / self.max_hp
+        pygame.draw.rect(surface, (255, 0, 0), (self.rect.x, self.rect.y - 10, self.rectsizex, 5))  # Red
+        pygame.draw.rect(surface, (0, 255, 0), (self.rect.x, self.rect.y - 10, self.rectsizex * health_percentage, 5))  # Green
     
     #check player status
     def player_alive(self):
@@ -35,21 +41,24 @@ class Player():
             if key[pygame.K_d]:
                 self.rect.move_ip(3,0)
 
-    def checkCollision(self,enemies):
+    """def checkCollision(self,enemies):
         #for enemy in enemies:
             if self.rect.colliderect(enemies) and self.tick >= 4:
                 self.color = "YELLOW"
                 self.hp -=1
                 self.tick = 0
-                print(self.hp)
+                print(self.hp)"""
 
     #Draw player on to surface(Game screen)
     def draw(self,surface):
         pygame.draw.rect(surface, self.color, self.rect)
 
+
     def playerUpdate(self,surface,enemies):
         self.player_alive()
-        self.checkCollision(enemies)
+        self.draw_health_bar(surface)
+        #self.checkCollision(enemies)
         self.input()
         self.draw(surface)
         self.tick +=1
+        

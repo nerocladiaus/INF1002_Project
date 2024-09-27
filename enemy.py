@@ -11,8 +11,9 @@ class Enemy():
         self.dead = False
         self.edge = random.choice(["left","right","top","bottom"])
         self.x ,self.y = 0,0
+        self.tick = 16
 
-        print(self.edge)
+        #print(self.edge)
         if self.edge == "left":
             self.x = self.rectsizex
             self.y = random.randint(0, surfaceH + self.rectsizey)
@@ -45,8 +46,24 @@ class Enemy():
             dx /= distance
             dy /= distance
             self.rect.move_ip(dx * 2, dy * 2)
+    
+    def attack(self,player):
+        if self.rect.colliderect(player) and self.tick >= 32:
+            self.color = "RED"
+            player.hp -=2
+            self.tick = 0
+            print(player.hp)
+        else:
+            self.color = "ORANGE"
+        self.tick += 1
 
+    def damage(self,projectile):
+        if self.rect.colliderect(projectile):
+            self.dead = True
+        
     #Update Loop
-    def update(self,surface,player):
+    def update(self,surface,player,projectile):
         self.move(player)
+        self.attack(player)
+        self.damage(projectile)
         self.draw(surface)
