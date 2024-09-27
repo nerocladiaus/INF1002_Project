@@ -20,6 +20,26 @@ BULLET_SIZE = 5
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter")
 
+# Health Bar
+class Healthbar():
+    def __init__(self,x ,y, w, h, max_hp):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.hp = max_hp
+        self.max_hp = max_hp
+    # end def
+
+    def draw(self, surface):
+        #calculate health ratio
+        ratio = self.hp / self.max_hp
+        pygame.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
+        pygame.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
+    # end def
+
+health_bar = Healthbar(250, 200, 300, 40, 100)
+
 # Player class
 class Player:
     def __init__(self):
@@ -93,9 +113,15 @@ def game_loop():
     spawn_timer = 0
     score = 0
     font = pygame.font.SysFont(None, 36)
-
+    
     while running:
+    
         screen.fill(WHITE)
+        clock.tick(60)
+
+        #ADD
+        # Draw Health Bar
+        health_bar.draw(screen)
         
         # Event handling
         for event in pygame.event.get():
@@ -133,13 +159,24 @@ def game_loop():
             enemy.move(player)
             enemy.draw(screen)
             if is_collision(player, enemy):
-                running = False  # Game over if an enemy touches the player
+                #ADD
+                health_bar.hp -= 1  #Takes 1 damage for each collision
+                # Ensures no more health
+                if health_bar.hp <= 0: 
+                    running = False  # Game over if an enemy touches the player                    
+                continue
+
             for bullet in bullets[:]:
                 if is_collision(bullet, enemy):
                     enemies.remove(enemy)  # Remove enemy if hit by a bullet
                     bullets.remove(bullet)  # Remove bullet
                     score += 1
                     break
+        
+        #ADD
+        # When No More Health
+        if health_bar.hp == 0:
+            running = False
 
         # Draw player
         player.draw(screen)
