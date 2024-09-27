@@ -8,6 +8,8 @@ pygame.init()
 # Game Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+MAP_WIDTH = 1600  
+MAP_HEIGHT = 120
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -29,8 +31,8 @@ class Player:
         self.speed = 5
         self.color = GREEN
     
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
+    def draw(self, screen, camera):
+        pygame.draw.rect(screen, self.color, camera.apply(self))
     
     def move(self, keys):
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -44,6 +46,26 @@ class Player:
         self.x = max(0, min(self.x, SCREEN_WIDTH - self.size))  # Keep within screen
         self.y = max(0, min(self.y, SCREEN_HEIGHT - self.size))
 
+# Camera class to follow the player
+class Camera:
+    def __init__(self, width, height):
+        self.camera_rect = pygame.Rect(0, 0, width, height)
+        self.width = width
+        self.height = height
+
+    def apply(self, entity):
+        """Apply camera offset to the entity."""
+        return pygame.Rect(entity.x - self.camera_rect.x, entity.y - self.camera_rect.y, entity.size, entity.size)
+
+    def update(self, target):
+        """Center the camera on the target (the player)."""
+        self.camera_rect.x = target.x + target.size // 2 - SCREEN_WIDTH // 2
+        self.camera_rect.y = target.y + target.size // 2 - SCREEN_HEIGHT // 2
+
+        # Keep the camera within the bounds of the map
+        self.camera_rect.x = max(0, min(self.camera_rect.x, self.width - SCREEN_WIDTH))
+        self.camera_rect.y = max(0, min(self.camera_rect.y, self.height - SCREEN_HEIGHT))
+        
 # Bullet class
 class Bullet:
     def __init__(self, x, y, angle):
@@ -57,8 +79,8 @@ class Bullet:
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
     
-    def draw(self, screen):
-        pygame.draw.circle(screen, BLACK, (int(self.x), int(self.y)), self.size)
+    def draw(self, screen, camera):
+        pygame.draw.circle(screen, BLACK, (int(self.x - camera.camera_rect.x), int(self.y - camera.camera_rect.y)), self.size)
 
 # Enemy class
 class Enemy:
@@ -87,8 +109,8 @@ class Enemy:
         self.x += self.speed * math.cos(angle)
         self.y += self.speed * math.sin(angle)
     
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
+    def draw(self, screen, camera):
+        pygame.draw.rect(screen, self.color, camera.apply(self))
 
 # Collision check
 def is_collision(obj1, obj2):
@@ -105,6 +127,7 @@ def game_loop():
     spawn_timer = 0
     score = 0
     font = pygame.font.SysFont(None, 36)
+    camera = Camera(MAP_WIDTH, MAP_HEIGHT) 
 
     while running:
         screen.fill(WHITE)
@@ -126,10 +149,13 @@ def game_loop():
         # Player movement
         player.move(keys)
 
+        # Camera follows the player
+        camera.update(player)
+
         # Move and draw bullets
         for bullet in bullets[:]:
             bullet.move()
-            bullet.draw(screen)
+            bullet.draw(screen, camera)
             # Remove bullets if they go off-screen
             if bullet.x < 0 or bullet.x > SCREEN_WIDTH or bullet.y < 0 or bullet.y > SCREEN_HEIGHT:
                 bullets.remove(bullet)
@@ -143,7 +169,7 @@ def game_loop():
         # Move and draw enemies
         for enemy in enemies[:]:
             enemy.move(player)
-            enemy.draw(screen)
+            enemy.draw(screen, camera)
             if is_collision(player, enemy):
                 running = False  # Game over if an enemy touches the player
             for bullet in bullets[:]:
@@ -154,7 +180,7 @@ def game_loop():
                     break
 
         # Draw player
-        player.draw(screen)
+        player.draw(screen, camera)
 
         # Display score
         score_text = font.render(f"Score: {score}", True, BLACK)
