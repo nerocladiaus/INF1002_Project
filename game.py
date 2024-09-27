@@ -17,13 +17,16 @@ class Game:
         self.player = Player()
         self.enemies = []
         self.enemySpawnTimer = 0
+        self.score = 0
+        self.enemySpawnTimermax = 50
+        #self.levelspike = 0
         
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False        
 
-            if self.enemySpawnTimer >= 50:
+            if self.enemySpawnTimer >= self.enemySpawnTimermax:
                 self.enemies.append(Enemy(self.screenWidth,self.screenHeight))
                 print("Enemy spawn")
                 self.enemySpawnTimer = 0
@@ -33,27 +36,28 @@ class Game:
             
             #Collison Testing Shift to enenmy Class
             pos = pygame.mouse.get_pos()
-            enemy_rect = pygame.Rect(0, 0, 25, 25)
-            enemy_rect.center = pos
-            """if player.color == "YELLOW" and player.tick >= 4:
-                player.color = "GREEN"
-            else:
-                player.color = "GREEN"""
-            
-            #Testing Collision for Enemy Can be removed.
-            """if player.rect.colliderect(enemy_rect):
-               player.color = "RED"
-               player.hp -=1
-               print(player.hp)"""
-
+            mouse_rect = pygame.Rect(0, 0, 25, 25)
+            mouse_rect.center = pos
             
             #Draw Sprites to game window and updates.
             self.screen.fill((0,0,0))
-            pygame.draw.rect(self.screen, "BLUE" , enemy_rect)    
-            self.player.playerUpdate(self.screen,enemy_rect)     #Change to a list containing enemy
+            pygame.draw.rect(self.screen, "BLUE" , mouse_rect)    
+            self.player.playerUpdate(self.screen,mouse_rect)     #Change to a list containing enemy
             #self.enemies.update(self.screen,self.screenHeight,self.screenWidth)
             for enemy in self.enemies:
-                enemy.update(self.screen,self.player)
+                enemy.update(self.screen,self.player,mouse_rect)
+                if enemy.dead:
+                    self.enemies.remove(enemy)
+                    self.score += 100
+                    #self.levelspike += 10
+                    #print(self.levelspike)
+
+            """if self.enemySpawnTimermax > 5 and self.levelspike >= 1000:
+                self.enemySpawnTimermax -=5
+                self.levelspike = 0
+                print("Diffculty inceased")"""
+            
+
             self.display.blit(self.screen, (0,0))
             pygame.display.flip()
             self.clock.tick(60) 

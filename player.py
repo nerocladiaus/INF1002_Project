@@ -41,13 +41,13 @@ class Player():
             if key[pygame.K_d]:
                 self.rect.move_ip(3,0)
 
-    def checkCollision(self,enemies):
+    """def checkCollision(self,enemies):
         #for enemy in enemies:
             if self.rect.colliderect(enemies) and self.tick >= 4:
                 self.color = "YELLOW"
                 self.hp -=1
                 self.tick = 0
-                print(self.hp)
+                print(self.hp)"""
 
     #Draw player on to surface(Game screen)
     def draw(self,surface):
@@ -56,8 +56,9 @@ class Player():
 
     def playerUpdate(self,surface,enemies):
         self.player_alive()
-        self.checkCollision(enemies)
+        self.draw_health_bar(surface)
+        #self.checkCollision(enemies)
         self.input()
         self.draw(surface)
         self.tick +=1
-        self.draw_health_bar(surface)
+        
