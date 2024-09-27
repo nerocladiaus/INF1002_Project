@@ -11,6 +11,13 @@ class Player():
         self.dead = False
         self.score = 0
         self.tick = 0
+        self.rectsizex, self.rectsizey = 40,70
+        self.x , self.y = 640,360
+
+    def draw_health_bar(self, surface):
+        health_percentage = self.hp / self.max_hp
+        pygame.draw.rect(surface, (255, 0, 0), (self.rect.x, self.rect.y - 10, self.rectsizex, 5))  # Red
+        pygame.draw.rect(surface, (0, 255, 0), (self.rect.x, self.rect.y - 10, self.rectsizex * health_percentage, 5))  # Green
     
     #check player status
     def player_alive(self):
@@ -47,9 +54,11 @@ class Player():
     def draw(self,surface):
         pygame.draw.rect(surface, self.color, self.rect)
 
+
     def playerUpdate(self,surface,enemies):
         self.player_alive()
         self.checkCollision(enemies)
         self.input()
         self.draw(surface)
         self.tick +=1
+        self.draw_health_bar(surface)
