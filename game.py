@@ -22,15 +22,26 @@ class Game:
         self.enemySpawnTimer = 0
         self.score = 0
         self.enemySpawnTimermax = 50
-        #self.levelspike = 0
-        self.enemy_typelist = ["weak", "normal", "strong"]
-        
+        self.kills = 0
+        self.enemy_threshold,self. enemy_level = 10, 0
+        self.enemy_typelist = ["weak"]
+
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False        
 
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
+                if self.kills >= self.enemy_threshold:
+                    if self.enemy_level == 0:
+                        self.enemy_level = 1
+                        self.enemy_typelist.append("normal")
+                        #print("normal Unlocked")
+                    elif self.enemy_level == 1:
+                        self.enemy_level = 2
+                        self.enemy_typelist.append("strong")
+                        #print("strong Unlocked")
+
                 self.enemytype = random.choice(self.enemy_typelist)
                 self.enemies.append(Enemy(self.screenWidth,self.screenHeight, self.enemytype))
                 print(f'Enemy {self.enemytype} spawn')
@@ -54,7 +65,7 @@ class Game:
                 if enemy.dead:
                     self.enemies.remove(enemy)
                     self.score += 100
-                    #self.levelspike += 10
+                    self.kills += 1
                     #print(self.levelspike)
 
             """if self.enemySpawnTimermax > 5 and self.levelspike >= 1000:

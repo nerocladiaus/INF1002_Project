@@ -12,8 +12,8 @@ class Enemy():
         self.edge = random.choice(["left","right","top","bottom"])
         self.x ,self.y = 0,0
         self.tick = 16
+        self.dmgtick = 20
         
-
         #print(self.edge)
         if self.edge == "left":
             self.x = self.rectsizex
@@ -68,8 +68,13 @@ class Enemy():
         self.tick += 1
 
     def damage(self,projectile):
-        if self.rect.colliderect(projectile):
-            self.dead = True
+        if self.rect.colliderect(projectile) and self.dmgtick >= 20:
+            self.hp -= 25
+            if self.hp <= 0:
+                self.dead = True
+            self.dmgtick = 0
+        self.dmgtick +=1
+            
 
     def set_enemy_attributes(self, enemy_type):
         if enemy_type == "weak":
