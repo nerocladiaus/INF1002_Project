@@ -1,4 +1,5 @@
 import pygame
+from projectile import Projectile
 
 class Player():
     def __init__(self):
@@ -9,9 +10,15 @@ class Player():
         self.dead = False
         self.score = 0
         self.tick = 0
-        self.rectsizex, self.rectsizey = 40,70
+        self.rectsizex, self.rectsizey = 30,30
         self.x , self.y = 640,360
-        self.rect = pygame.Rect(self.x, self.y, 40, 70)
+        self.rect = pygame.Rect(self.x, self.y, self.rectsizex, self.rectsizey)
+        
+    #Shooting attributes
+        self.projectiles = []
+        self.bulletspeed = 10
+        self.reload = 4
+        
 
     def draw_health_bar(self, surface):
         health_percentage = self.hp / self.max_hp
@@ -41,6 +48,9 @@ class Player():
                 self.rect.move_ip(0,3)
             if key[pygame.K_d]:
                 self.rect.move_ip(3,0)
+            if pygame.mouse.get_pressed()[0]:  # If left mouse button is pressed
+                self.shoot()
+                
             #Prevent player from Moving offscreen/MAP
             if self.rect.left < 0:              # Left boundary
                 self.rect.left = 0
@@ -51,6 +61,33 @@ class Player():
             if self.rect.bottom > screen_height:  # Bottom boundary
                 self.rect.bottom = screen_height    
                 
+    def shoot(self):
+        if self.reload >= 16:
+            #Get Mouse pos
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            # Calculate the direction from the player to the mouse        
+            direction = pygame.Vector2(mouse_x - self.rect.centerx, mouse_y - self.rect.centery)
+
+            if direction.length() > 0:  # Avoid division by zero
+                    direction.normalize_ip()
+
+            projectile = Projectile(self.rect.centerx, self.rect.centery, direction, self.bulletspeed)
+            print("Projectile spawn")
+            self.reload = 0
+            self.projectiles.append(projectile)
+        else:
+            self.reload += 1
+
+    def update_projectiles(self,surface):
+        for projectile in self.projectiles:
+            if projectile.hitcount >= 2:
+                self.projectiles.remove(projectile)
+            projectile.update()
+            if projectile.rect.x < 0 or projectile.rect.x > 1280 or projectile.rect.y < 0 or projectile.rect.y > 800:
+                self.projectiles.remove(projectile)  # Remove if off screen
+            else:
+                projectile.draw(surface)
+            
 
     """def checkCollision(self,enemies):
         #for enemy in enemies:
@@ -63,12 +100,15 @@ class Player():
     #Draw player on to surface(Game screen)
     def draw(self,surface):
         pygame.draw.rect(surface, self.color, self.rect)
+        for projectile in self.projectiles:
+            projectile.draw(surface)
 
 
     def playerUpdate(self,surface,enemies,screen_width,screen_height):
         self.player_alive()
         #self.checkCollision(enemies)
         self.input(screen_width,screen_height)
+        self.update_projectiles(surface)
         self.draw(surface)
         self.draw_health_bar(surface)
         self.tick +=1

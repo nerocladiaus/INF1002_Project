@@ -2,6 +2,7 @@ import pygame
 import random
 from player import Player
 from enemy import Enemy
+from projectile import Projectile
 
 pygame.init()
 pygame.display.set_caption("Urban Onslaught")
@@ -30,18 +31,20 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False        
-
+            #Enemy Spawn Handling
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
+                #Check Kills for current game and allow Higher Enemy Spawn
                 if self.kills >= self.enemy_threshold:
                     if self.enemy_level == 0:
                         self.enemy_level = 1
                         self.enemy_typelist.append("normal")
-                        #print("normal Unlocked")
+                        self.enemy_threshold = 20
+                        print("normal Unlocked")
                     elif self.enemy_level == 1:
                         self.enemy_level = 2
                         self.enemy_typelist.append("strong")
-                        #print("strong Unlocked")
-
+                        print("strong Unlocked")
+                #Choose Enemy Type and Spawn off screen
                 self.enemytype = random.choice(self.enemy_typelist)
                 self.enemies.append(Enemy(self.screenWidth,self.screenHeight, self.enemytype))
                 print(f'Enemy {self.enemytype} spawn')
@@ -61,7 +64,7 @@ class Game:
             self.player.playerUpdate(self.screen,mouse_rect,self.screenWidth,self.screenHeight)  
             #self.enemies.update(self.screen,self.screenHeight,self.screenWidth)
             for enemy in self.enemies:
-                enemy.update(self.screen,self.player,mouse_rect)
+                enemy.update(self.screen,self.player,self.player.projectiles)
                 if enemy.dead:
                     self.enemies.remove(enemy)
                     self.score += 100

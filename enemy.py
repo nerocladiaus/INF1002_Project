@@ -4,7 +4,7 @@ import math
 
 class Enemy():
     def __init__(self,surfaceW,surfaceH, enemy_type):
-        self.rectsizex, self.rectsizey = 40,70
+        self.rectsizex, self.rectsizey = 30,30
         self.color = "ORANGE"
         self.max_hp,self.speed,self.type = self.set_enemy_attributes(enemy_type)
         self.hp = self.max_hp
@@ -67,12 +67,14 @@ class Enemy():
             self.color = "ORANGE"
         self.tick += 1
 
-    def damage(self,projectile):
-        if self.rect.colliderect(projectile) and self.dmgtick >= 20:
-            self.hp -= 25
-            if self.hp <= 0:
-                self.dead = True
-            self.dmgtick = 0
+    def damage(self,projectiles):
+        for projectile in projectiles:
+            if self.rect.colliderect(projectile.rect) and self.dmgtick >= 20:
+                self.hp -= 25
+                projectile.hitcount += 1
+                if self.hp <= 0:
+                    self.dead = True
+                self.dmgtick = 0
         self.dmgtick +=1
             
 
