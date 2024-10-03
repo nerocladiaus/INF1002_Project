@@ -3,15 +3,16 @@ import random
 import math
 
 class Enemy():
-    def __init__(self,surfaceW,surfaceH):
+    def __init__(self,surfaceW,surfaceH, enemy_type):
         self.rectsizex, self.rectsizey = 40,70
         self.color = "ORANGE"
-        self.max_hp = 100
+        self.max_hp,self.speed,self.type = self.set_enemy_attributes(enemy_type)
         self.hp = self.max_hp
         self.dead = False
         self.edge = random.choice(["left","right","top","bottom"])
         self.x ,self.y = 0,0
         self.tick = 16
+        
 
         #print(self.edge)
         if self.edge == "left":
@@ -49,9 +50,18 @@ class Enemy():
     
     def attack(self,player):
         if self.rect.colliderect(player) and self.tick >= 32:
-            self.color = "RED"
-            player.hp -=2
-            self.tick = 0
+            if self.type == "weak":
+                self.color = "RED"
+                player.hp -=2
+                self.tick = 0
+            if self.type == "normal":
+                self.color = "RED"
+                player.hp -=4
+                self.tick = 0
+            if self.type == "strong":
+                self.color = "RED"
+                player.hp -=6
+                self.tick = 0
             print(player.hp)
         else:
             self.color = "ORANGE"
@@ -60,6 +70,16 @@ class Enemy():
     def damage(self,projectile):
         if self.rect.colliderect(projectile):
             self.dead = True
+
+    def set_enemy_attributes(self, enemy_type):
+        if enemy_type == "weak":
+            return 50, 2, "weak"  # HP, Speed
+        elif enemy_type == "normal":
+            return 100, 4, "normal"
+        elif enemy_type == "strong":
+            return 150, 6, "strong"
+        else:
+            return 100, 2, "normal"  # Default values
         
     #Update Loop
     def update(self,surface,player,projectile):

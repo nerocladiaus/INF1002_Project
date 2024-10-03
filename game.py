@@ -1,4 +1,5 @@
 import pygame
+import random
 from player import Player
 from enemy import Enemy
 
@@ -22,6 +23,7 @@ class Game:
         self.score = 0
         self.enemySpawnTimermax = 50
         #self.levelspike = 0
+        self.enemy_typelist = ["weak", "normal", "strong"]
         
         while self.running:
             for event in pygame.event.get():
@@ -29,8 +31,9 @@ class Game:
                     self.running = False        
 
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
-                self.enemies.append(Enemy(self.screenWidth,self.screenHeight))
-                #print("Enemy spawn")
+                self.enemytype = random.choice(self.enemy_typelist)
+                self.enemies.append(Enemy(self.screenWidth,self.screenHeight, self.enemytype))
+                print(f'Enemy {self.enemytype} spawn')
                 self.enemySpawnTimer = 0
             else:
                 self.enemySpawnTimer += 1
