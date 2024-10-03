@@ -29,8 +29,9 @@ class Player():
             self.color = "GREEN"
 
     #Handle Player input
-    def input(self):
+    def input(self,screen_width,screen_height):
         if self.dead != True:
+            #Check Player input
             key = pygame.key.get_pressed()
             if key[pygame.K_w]:
                 self.rect.move_ip(0,-3)
@@ -40,6 +41,16 @@ class Player():
                 self.rect.move_ip(0,3)
             if key[pygame.K_d]:
                 self.rect.move_ip(3,0)
+            #Prevent player from Moving offscreen/MAP
+            if self.rect.left < 0:              # Left boundary
+                self.rect.left = 0
+            if self.rect.right > screen_width:  # Right boundary
+                self.rect.right = screen_width
+            if self.rect.top < 0:               # Top boundary
+                self.rect.top = 0
+            if self.rect.bottom > screen_height:  # Bottom boundary
+                self.rect.bottom = screen_height    
+                
 
     """def checkCollision(self,enemies):
         #for enemy in enemies:
@@ -54,11 +65,11 @@ class Player():
         pygame.draw.rect(surface, self.color, self.rect)
 
 
-    def playerUpdate(self,surface,enemies):
+    def playerUpdate(self,surface,enemies,screen_width,screen_height):
         self.player_alive()
-        self.draw_health_bar(surface)
         #self.checkCollision(enemies)
-        self.input()
+        self.input(screen_width,screen_height)
         self.draw(surface)
+        self.draw_health_bar(surface)
         self.tick +=1
         

@@ -3,14 +3,16 @@ from player import Player
 from enemy import Enemy
 
 pygame.init()
+pygame.display.set_caption("Urban Onslaught")
 
 class Game:
     def __init__(self):
-        self.screenWidth, self.screenHeight = 1280, 720
+        self.screenWidth, self.screenHeight = 1280, 800
         self.display = pygame.display.set_mode((self.screenWidth, self.screenHeight))
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
         self.running = True
         self.clock = pygame.time.Clock()
+        
         
     
     def game_loop(self):
@@ -28,7 +30,7 @@ class Game:
 
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
                 self.enemies.append(Enemy(self.screenWidth,self.screenHeight))
-                print("Enemy spawn")
+                #print("Enemy spawn")
                 self.enemySpawnTimer = 0
             else:
                 self.enemySpawnTimer += 1
@@ -42,7 +44,7 @@ class Game:
             #Draw Sprites to game window and updates.
             self.screen.fill((0,0,0))
             pygame.draw.rect(self.screen, "BLUE" , mouse_rect)    
-            self.player.playerUpdate(self.screen,mouse_rect)     #Change to a list containing enemy
+            self.player.playerUpdate(self.screen,mouse_rect,self.screenWidth,self.screenHeight)  
             #self.enemies.update(self.screen,self.screenHeight,self.screenWidth)
             for enemy in self.enemies:
                 enemy.update(self.screen,self.player,mouse_rect)
@@ -57,7 +59,6 @@ class Game:
                 self.levelspike = 0
                 print("Diffculty inceased")"""
             
-
             self.display.blit(self.screen, (0,0))
             pygame.display.flip()
             self.clock.tick(60) 
