@@ -1,11 +1,10 @@
 import pygame
 import random
+import sys
+import time
 from player import Player
 from enemy import Enemy
 from projectile import Projectile
-
-pygame.init()
-pygame.display.set_caption("Urban Onslaught")
 
 class Game:
     def __init__(self):
@@ -14,8 +13,28 @@ class Game:
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
         self.running = True
         self.clock = pygame.time.Clock()
-        
-        
+
+        # Initialize Pygame font module
+        pygame.font.init()
+        # Set up fonts for the clock
+        self.font = pygame.font.Font(None, 36)  # Initialize the font
+        # Store the start time
+        self.start_time = pygame.time.get_ticks()  # Time in milliseconds
+        self.timer_running = True  # Initialize the timer flag
+
+    def draw_clock(self):
+        if self.timer_running:
+            # Calculate the elapsed time
+            elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000  # Convert to seconds
+            minutes = elapsed_time // 60
+            seconds = elapsed_time % 60
+            timer_display = f"{minutes:02}:{seconds:02}"  # Format as MM:SS
+        else:
+            timer_display = "Game Over"  # Display "Game Over" when the timer stops
+
+        text_surface = self.font.render(timer_display, True, (255, 255, 255))  # White text
+        text_rect = text_surface.get_rect(topright=(self.screenWidth - 10, 10))  # Top right corner
+        self.screen.blit(text_surface, text_rect)
     
     def game_loop(self):
         self.player = Player()
@@ -30,7 +49,12 @@ class Game:
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False        
+                    self.running = False
+
+            # Check if player's health is 0 to stop the timer
+            if self.player.hp <= 0:
+                self.timer_running = False  # Stop the timer
+
             #Enemy Spawn Handling
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
                 #Check Kills for current game and allow Higher Enemy Spawn
@@ -76,13 +100,12 @@ class Game:
                 self.levelspike = 0
                 print("Diffculty inceased")"""
             
+            #Draw the timer
+            self.draw_clock()
+            
             self.display.blit(self.screen, (0,0))
             pygame.display.flip()
             self.clock.tick(60) 
-
-    
-
-
 
 if __name__ == "__main__":
     instance = Game()
