@@ -1,13 +1,13 @@
 import pygame
 import random
 import sys
-import time
 from player import Player
 from enemy import Enemy
 from projectile import Projectile
 
 class Game:
     def __init__(self):
+        pygame.init() # Make sure to initialize Pygame
         self.screenWidth, self.screenHeight = 1280, 800
         self.display = pygame.display.set_mode((self.screenWidth, self.screenHeight))
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
@@ -16,11 +16,10 @@ class Game:
 
         # Initialize Pygame font module
         pygame.font.init()
-        # Set up fonts for the clock
         self.font = pygame.font.Font(None, 36)  # Initialize the font
-        # Store the start time
         self.start_time = pygame.time.get_ticks()  # Time in milliseconds
         self.timer_running = True  # Initialize the timer flag
+        self.score = 0  # Initialize score
 
     def draw_clock(self):
         if self.timer_running:
@@ -35,12 +34,17 @@ class Game:
         text_surface = self.font.render(timer_display, True, (255, 255, 255))  # White text
         text_rect = text_surface.get_rect(topright=(self.screenWidth - 10, 10))  # Top right corner
         self.screen.blit(text_surface, text_rect)
+
+    def draw_score(self):
+        score_display = f"Score: {self.score}"  # Prepare score text
+        text_surface = self.font.render(score_display, True, (255, 255, 255))  # White text
+        text_rect = text_surface.get_rect(topleft=(10, 10))  # Top left corner
+        self.screen.blit(text_surface, text_rect)
     
     def game_loop(self):
         self.player = Player()
         self.enemies = []
         self.enemySpawnTimer = 0
-        self.score = 0
         self.enemySpawnTimermax = 50
         self.kills = 0
         self.enemy_threshold,self. enemy_level = 10, 0
@@ -100,8 +104,8 @@ class Game:
                 self.levelspike = 0
                 print("Diffculty inceased")"""
             
-            #Draw the timer
-            self.draw_clock()
+            self.draw_clock() #Draw the timer
+            self.draw_score() # Call the draw_score function to display the score
             
             self.display.blit(self.screen, (0,0))
             pygame.display.flip()
@@ -110,5 +114,3 @@ class Game:
 if __name__ == "__main__":
     instance = Game()
     instance.game_loop()
-
-
