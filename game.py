@@ -7,6 +7,7 @@ from enemy import Enemy
 from projectile import Projectile
 from weapon import weapon_list
 from userLogin import load_user_data, save_user_data, load_user_total_data, add_user_total_data, save_user_total_data
+#from endgame import GameOver  # Import the GameOver class
 
 def saveuserdata(score, kills):
             users = load_user_data()
@@ -23,12 +24,20 @@ class Game:
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
         self.running = True
         self.clock = pygame.time.Clock()
+        self.start_time = pygame.time.get_ticks()  # Time in milliseconds
+        self.timer_running = True  # Initialize the timer flag
+        self.data_saved = False
+        self.elapsed_time = 0  # Declare elapsed_time as an instance variable
+
+        # Pause
+        self.paused = False # Initialize the pause state
 
         # Initialize Pygame font module
         pygame.font.init()
         # Set up fonts for the clock
         self.font = pygame.font.Font(None, 36)  # Initialize the font
         # Store the start time
+
         self.start_time = pygame.time.get_ticks()  # Time in milliseconds
         self.timer_running = True  # Initialize the timer flag
         self.data_saved = False
@@ -181,8 +190,6 @@ class Game:
      # Resume the game
      self.timer_running = True
 
-
-    
     def game_loop(self):
         self.player = Player()
         self.enemies = []
@@ -192,21 +199,53 @@ class Game:
         self.kills = 0
         self.enemy_threshold,self. enemy_level = 10, 0
         self.enemy_typelist = ["weak"]
+        self.start_time = pygame.time.get_ticks()  # Reset start_time when game starts
+        self.elapsed_time = 0  # Reset elapsed_time when game starts
 
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                # Check for pause/unpause
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:  # Toggle pause with 'P' key
+                        self.paused = not self.paused
+                        if self.paused:
+                            self.timer_running = False  # Stop the timer if paused
+                        else:
+                            # When unpausing, reset the start_time to the current time minus the elapsed time
+                            self.start_time = pygame.time.get_ticks() - (self.elapsed_time * 1000)  # Convert seconds to milliseconds
+                            self.timer_running = True  # Resume the timer
+
+            if self.paused:
+                self.screen.fill((0, 0, 0))  # Fill the screen with black
+                self.draw_pause()  # Draw the pause message
+                pygame.display.flip()  # Update the display
+                continue  # Skip the rest of the loop if paused
 
             # Check if player's health is 0 to stop the timer
             if self.player.hp <= 0:
-                self.timer_running = False  # Stop the timer
+                if self.timer_running:  # Only set to False if it is running
+                    self.timer_running = False
 
             if self.score // 1000 > self.last_score_for_weapon:
                 self.pause_and_show_weapon_choices()
-                self.last_score_for_weapon = self.score // 1000
-                
 
+                ## Display the Game Over screen
+                #game_over_screen = GameOver(self)
+                #game_over_screen.display()  # Display the game over screen
+
+                ## Reset health or perform any restart logic
+                #self.player.hp = 100  # Reset player health or any other restart logic
+                #self.score = 0  # Reset score if necessary
+                #self.kills = 0  # Reset kills if necessary
+                #continue  # Skip to the next iteration to avoid further processing
+                
+            # Update timer only if it is running
+            if self.timer_running:
+                self.elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
+            #else:
+                #self.elapsed_time = 0  # Reset elapsed_time when the timer is stopped
 
             #Enemy Spawn Handling
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
@@ -266,8 +305,41 @@ class Game:
             pygame.display.flip()
             self.clock.tick(60)
 
+    def draw_clock(self):
+        if self.timer_running:
+            # Calculate the elapsed time
+            global elapsed_time
+            elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000  # Convert to seconds
+            minutes = elapsed_time // 60
+            seconds = elapsed_time % 60
+            timer_display = f"{minutes:02}:{seconds:02}"  # Format as MM:SS
+        else:
+            timer_display = "Game Over"  # Display "Game Over" when the timer stops
+            
+            if not self.data_saved:
+                saveuserdata(self.score, self.kills)
+                self.data_saved = True
+            
 
+        text_surface = self.font.render(timer_display, True, (255, 255, 255))  # White text
+        text_rect = text_surface.get_rect(topright=(self.screenWidth - 10, 10))  # Top right corner
+        self.screen.blit(text_surface, text_rect)
 
+    def draw_score(self):
+        score_display = f"Score: {self.score}"  # Prepare score text
+        text_surface = self.font.render(score_display, True, (255, 255, 255))  # White text
+        text_rect = text_surface.get_rect(topleft=(10, 10))  # Top left corner
+        self.screen.blit(text_surface, text_rect)
+
+    def draw_pause(self):
+        pause_surface = pygame.Surface((self.screenWidth, self.screenHeight))
+        pause_surface.fill((0, 0, 0))  # Fill with black
+        pause_text = "Game Paused. Press 'P' to continue."
+        text_surface = self.font.render(pause_text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(self.screenWidth // 2, self.screenHeight // 2))
+        pause_surface.blit(text_surface, text_rect)
+        
+        self.display.blit(pause_surface, (0, 0))  # Draw the pause surface onto the display
 
 
 
