@@ -228,8 +228,10 @@ class Game:
                 if self.timer_running:  # Only set to False if it is running
                     self.timer_running = False
 
+
             if self.score // 1000 > self.last_score_for_weapon:
                 self.pause_and_show_weapon_choices()
+                self.last_score_for_weapon = self.score // 1000
 
                 ## Display the Game Over screen
                 #game_over_screen = GameOver(self)
@@ -240,6 +242,7 @@ class Game:
                 #self.score = 0  # Reset score if necessary
                 #self.kills = 0  # Reset kills if necessary
                 #continue  # Skip to the next iteration to avoid further processing
+
                 
             # Update timer only if it is running
             if self.timer_running:
