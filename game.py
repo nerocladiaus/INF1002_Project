@@ -6,7 +6,6 @@ from player import Player
 from enemy import Enemy
 from projectile import Projectile
 from userLogin import load_user_data, save_user_data, load_user_total_data, add_user_total_data, save_user_total_data
-#from endgame import GameOver  # Import the GameOver class
 
 
 
@@ -31,19 +30,17 @@ class Game:
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
         self.running = True
         self.clock = pygame.time.Clock()
-        self.start_time = pygame.time.get_ticks()  # Time in milliseconds
-        self.timer_running = True  # Initialize the timer flag
-        self.data_saved = False
-        self.elapsed_time = 0  # Declare elapsed_time as an instance variable
-
-        # Pause
-        self.paused = False # Initialize the pause state
 
         # Initialize Pygame font module
         pygame.font.init()
         # Set up fonts for the clock
         self.font = pygame.font.Font(None, 36)  # Initialize the font
         # Store the start time
+        self.start_time = pygame.time.get_ticks()  # Time in milliseconds
+        self.timer_running = True  # Initialize the timer flag
+        self.data_saved = False
+        # Pause
+        self.paused = False # Initialize the pause state
 
     
     def game_loop(self):
@@ -55,8 +52,6 @@ class Game:
         self.kills = 0
         self.enemy_threshold,self. enemy_level = 10, 0
         self.enemy_typelist = ["weak"]
-        self.start_time = pygame.time.get_ticks()  # Reset start_time when game starts
-        self.elapsed_time = 0  # Reset elapsed_time when game starts
 
         while self.running:
             for event in pygame.event.get():
@@ -81,19 +76,8 @@ class Game:
 
             # Check if player's health is 0 to stop the timer
             if self.player.hp <= 0:
-                if self.timer_running:  # Only set to False if it is running
-                    self.timer_running = False
+                self.timer_running = False  # Stop the timer
 
-                ## Display the Game Over screen
-                #game_over_screen = GameOver(self)
-                #game_over_screen.display()  # Display the game over screen
-
-                ## Reset health or perform any restart logic
-                #self.player.hp = 100  # Reset player health or any other restart logic
-                #self.score = 0  # Reset score if necessary
-                #self.kills = 0  # Reset kills if necessary
-                #continue  # Skip to the next iteration to avoid further processing
-                
             # Update timer only if it is running
             if self.timer_running:
                 self.elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
@@ -192,7 +176,6 @@ class Game:
         pause_surface.blit(text_surface, text_rect)
         
         self.display.blit(pause_surface, (0, 0))  # Draw the pause surface onto the display
-
 
 
 #Login and Main Menu code
