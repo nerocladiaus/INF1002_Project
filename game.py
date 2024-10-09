@@ -5,12 +5,8 @@ import time
 from player import Player
 from enemy import Enemy
 from projectile import Projectile
+from weapon import weapon_list
 from userLogin import load_user_data, save_user_data, load_user_total_data, add_user_total_data, save_user_total_data
-
-
-
-
-
 
 def saveuserdata(score, kills):
             users = load_user_data()
@@ -19,9 +15,6 @@ def saveuserdata(score, kills):
                                     "time":elapsed_time}
             save_user_data(users)
             add_user_total_data(users)
-            
-
-
 
 class Game:
     def __init__(self):
@@ -39,8 +32,9 @@ class Game:
         self.start_time = pygame.time.get_ticks()  # Time in milliseconds
         self.timer_running = True  # Initialize the timer flag
         self.data_saved = False
-
-
+        self.last_score_for_weapon = 0
+        self.coins = 0
+        self.weapon_purchased = None
 
     def draw_clock(self):
         if self.timer_running:
@@ -68,6 +62,124 @@ class Game:
         text_rect = text_surface.get_rect(topleft=(10, 10))  # Top left corner
         self.screen.blit(text_surface, text_rect)
 
+    def draw_coins(self):
+        coins_display = f"Coins: {self.coins}"
+        coins_surface = self.font.render(coins_display, True, (255, 255, 255))
+        coins_rect = coins_surface.get_rect(topleft=(10, 50))
+        self.screen.blit(coins_surface, coins_rect)
+
+    def pause_and_show_weapon_choices(self):
+     # Pause the game
+     self.timer_running = False
+     self.screen.fill((255, 255, 255))
+
+     # Set dimensions for weapon choice rectangles
+     rect_width, rect_height = 200, 120  # Updated rectangle size
+     spacing = 20
+     total_width = 3 * rect_width + 2 * spacing
+     start_x = (self.screenWidth - total_width) // 2
+     center_y = (self.screenHeight - rect_height) // 2
+
+     # Set font size for weapon text
+     weapon_font_size = 36  # Change this to adjust the text size
+     weapon_font = pygame.font.Font(None, weapon_font_size)
+
+     # Create and display weapon choice rectangles
+     weapon_choice_rects = []
+     if self.player.weapon is None:
+        choices = [{"weapon": weapon, "cost": weapon.cost} for weapon in weapon_list[:3]]
+        message = "Choose a weapon (costs coins)"
+     else:
+        # Display options for upgrading the current weapon
+        choices = [
+            {"weapon": self.player.weapon, "cost": 50, "upgrade": "attack_speed"},
+            {"weapon": self.player.weapon, "cost": 50, "upgrade": "damage"},
+            {"weapon": None, "cost": 0, "upgrade": "skip"}
+        ]
+        message = "Upgrade your weapon"
+
+     for i, choice in enumerate(choices):
+        rect = pygame.Rect(start_x + i * (rect_width + spacing), center_y, rect_width, rect_height)
+        weapon_choice_rects.append((rect, choice))
+
+        # Draw the weapon choice rectangle
+        pygame.draw.rect(self.screen, (255, 255, 255), rect)
+        pygame.draw.rect(self.screen, (0, 0, 0), rect, 3)
+
+        # Customize the text based on the choice
+        if "upgrade" in choice:
+         if choice["upgrade"] == "attack_speed":
+            line1 = "Upgrade"
+            line2 = "Attack Speed"
+            cost_text = f"(${choice['cost']})"
+         elif choice["upgrade"] == "damage":
+            line1 = "Upgrade"
+            line2 = "Damage"
+            cost_text = f"(${choice['cost']})"
+         else:
+            line1 = "Skip"
+            line2 = ""
+            cost_text = ""
+        else:
+            line1 = choice['weapon'].name
+            line2 = ""
+            cost_text = f"(${choice['cost']})"
+
+        # Render the text with the updated font size
+        line1_surface = weapon_font.render(line1, True, (0, 0, 0))
+        line2_surface = weapon_font.render(line2, True, (0, 0, 0))
+        cost_surface = weapon_font.render(cost_text, True, (0, 0, 0))
+        text_y = rect.y + (rect_height // 2 - line1_surface.get_height() - 10)
+        self.screen.blit(line1_surface, (rect.x + 8, text_y))
+        if line2:
+          self.screen.blit(line2_surface, (rect.x + 8, text_y + line1_surface.get_height() + 5))
+        if cost_text:
+          self.screen.blit(cost_surface, (rect.x + 8, text_y + line1_surface.get_height() + line2_surface.get_height() + 10))
+
+     # Display message at the top
+     message_surface = self.font.render(message, True, (0, 0, 0))
+     message_rect = message_surface.get_rect(center=(self.screenWidth // 2, center_y - 70))
+     self.screen.blit(message_surface, message_rect)
+
+     self.display.blit(self.screen, (0, 0))
+     pygame.display.flip()
+
+    # Wait for player selection
+     selected_choice = None
+     while not selected_choice:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                for rect, choice in weapon_choice_rects:
+                    if rect.collidepoint(mouse_pos):
+                        # Check if the player has enough coins for the selection
+                        if self.coins >= choice["cost"]:
+                            selected_choice = choice
+                            if "upgrade" in choice:
+                                # Upgrade the current weapon
+                                if choice["upgrade"] == "attack_speed":
+                                    self.player.weapon.attack_speed = max(1, self.player.weapon.attack_speed - 3)
+                                elif choice["upgrade"] == "damage":
+                                    self.player.weapon.damage += 5
+                            else:
+                                # Equip the new weapon
+                                self.player.equip_weapon(choice["weapon"])
+                            # Deduct coins for the selection
+                            self.coins -= choice["cost"]
+                            print(f"Purchased {choice['upgrade'] if 'upgrade' in choice else choice['weapon'].name} for ${choice['cost']}. Remaining coins: {self.coins}")
+                        else:
+                            print("Not enough coins to make the purchase!")
+                        break
+
+         # Keep choices visible
+        self.display.blit(self.screen, (0, 0))
+        pygame.display.flip()
+
+     # Resume the game
+     self.timer_running = True
 
 
     
@@ -90,6 +202,9 @@ class Game:
             if self.player.hp <= 0:
                 self.timer_running = False  # Stop the timer
 
+            if self.score // 1000 > self.last_score_for_weapon:
+                self.pause_and_show_weapon_choices()
+                self.last_score_for_weapon = self.score // 1000
                 
 
 
@@ -131,7 +246,7 @@ class Game:
                     self.enemies.remove(enemy)
                     self.score += 100
                     self.kills += 1
-
+                    self.coins += 10
                     #print(self.levelspike)
             
 
@@ -145,7 +260,8 @@ class Game:
             #Draw the timer
             self.draw_clock()
             self.draw_score() # Call the draw_score function to display the score
-            
+            self.draw_coins() 
+
             self.display.blit(self.screen, (0,0))
             pygame.display.flip()
             self.clock.tick(60)
