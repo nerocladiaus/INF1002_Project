@@ -86,7 +86,7 @@ class Enemy():
         elif enemy_type == "strong":
             return 150, 6, "strong"
         else:
-            return 100, 2, "normal"  # Default values
+            return 100, 4, "normal"  # Default values
         
     #Update Loop
     def update(self,surface,player,projectile):

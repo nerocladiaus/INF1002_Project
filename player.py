@@ -1,5 +1,6 @@
 import pygame
 from projectile import Projectile
+from weapon import Weapon
 
 class Player():
     def __init__(self):
@@ -19,6 +20,9 @@ class Player():
         self.bulletspeed = 10
         self.reload = 4
         
+        self.weapon = None  # Initialize weapon as None
+        self.weapon_damage = 10
+        self.weapon_purchased = None
 
     def draw_health_bar(self, surface):
         health_percentage = self.hp / self.max_hp
@@ -70,8 +74,11 @@ class Player():
 
             if direction.length() > 0:  # Avoid division by zero
                     direction.normalize_ip()
+            damage = self.weapon_damage if self.weapon is None else self.weapon.damage
+            # Determine bullet speed based on weapon or default
+            speed = self.bulletspeed if self.weapon is None else self.weapon.attack_speed
 
-            projectile = Projectile(self.rect.centerx, self.rect.centery, direction, self.bulletspeed)
+            projectile = Projectile(self.rect.centerx, self.rect.centery, direction, speed, damage)
             print("Projectile spawn")
             self.reload = 0
             self.projectiles.append(projectile)
@@ -103,6 +110,13 @@ class Player():
         for projectile in self.projectiles:
             projectile.draw(surface)
 
+    def equip_weapon(self, weapon):
+        """Equip a weapon and update player attributes."""
+        self.weapon = weapon
+        self.bulletspeed = weapon.attack_speed
+        self.weapon_damage = weapon.damage
+        self.weapon_purchased = weapon  # Track the purchased weapon
+        print(f"Weapon equipped: {weapon.name}")
 
     def playerUpdate(self,surface,enemies,screen_width,screen_height):
         self.player_alive()
