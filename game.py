@@ -9,6 +9,11 @@ from weapon import weapon_list
 from userLogin import load_user_data, save_user_data, load_user_total_data, add_user_total_data, save_user_total_data
 #from endgame import GameOver  # Import the GameOver class
 
+
+
+
+
+
 def saveuserdata(score, kills):
             users = load_user_data()
             users[current_user] = {"score":score,
@@ -24,19 +29,17 @@ class Game:
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
         self.running = True
         self.clock = pygame.time.Clock()
-        self.start_time = pygame.time.get_ticks()  # Time in milliseconds
-        self.timer_running = True  # Initialize the timer flag
-        self.data_saved = False
-        self.elapsed_time = 0  # Declare elapsed_time as an instance variable
-
-        # Pause
-        self.paused = False # Initialize the pause state
 
         # Initialize Pygame font module
         pygame.font.init()
         # Set up fonts for the clock
         self.font = pygame.font.Font(None, 36)  # Initialize the font
         # Store the start time
+        self.start_time = pygame.time.get_ticks()  # Time in milliseconds
+        self.timer_running = True  # Initialize the timer flag
+        self.data_saved = False
+        # Pause
+        self.paused = False # Initialize the pause state
 
         self.start_time = pygame.time.get_ticks()  # Time in milliseconds
         self.timer_running = True  # Initialize the timer flag
@@ -199,8 +202,6 @@ class Game:
         self.kills = 0
         self.enemy_threshold,self. enemy_level = 10, 0
         self.enemy_typelist = ["weak"]
-        self.start_time = pygame.time.get_ticks()  # Reset start_time when game starts
-        self.elapsed_time = 0  # Reset elapsed_time when game starts
 
         while self.running:
             for event in pygame.event.get():
@@ -228,11 +229,6 @@ class Game:
                 if self.timer_running:  # Only set to False if it is running
                     self.timer_running = False
 
-
-            if self.score // 1000 > self.last_score_for_weapon:
-                self.pause_and_show_weapon_choices()
-                self.last_score_for_weapon = self.score // 1000
-
                 ## Display the Game Over screen
                 #game_over_screen = GameOver(self)
                 #game_over_screen.display()  # Display the game over screen
@@ -242,7 +238,6 @@ class Game:
                 #self.score = 0  # Reset score if necessary
                 #self.kills = 0  # Reset kills if necessary
                 #continue  # Skip to the next iteration to avoid further processing
-
                 
             # Update timer only if it is running
             if self.timer_running:
@@ -343,7 +338,6 @@ class Game:
         pause_surface.blit(text_surface, text_rect)
         
         self.display.blit(pause_surface, (0, 0))  # Draw the pause surface onto the display
-
 
 
 #Login and Main Menu code
