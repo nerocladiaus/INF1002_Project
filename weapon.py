@@ -9,8 +9,9 @@ class Weapon:
 
 # Weapon options (example values)
 weapon_list = [
-    Weapon("AK47", attack_speed=15, damage=20, cost=100),
+    Weapon("AK47", attack_speed=25, damage=20, cost=100),
     Weapon("Uzi", attack_speed=20, damage=10, cost=80),
-    Weapon("Sniper", attack_speed=3, damage=30, cost=150)
+    Weapon("Sniper", attack_speed=3, damage=30, cost=150),
+ 
 ]
 

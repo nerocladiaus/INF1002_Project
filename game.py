@@ -170,7 +170,7 @@ class Game:
                             if "upgrade" in choice:
                                 # Upgrade the current weapon
                                 if choice["upgrade"] == "attack_speed":
-                                    self.player.weapon.attack_speed = max(1, self.player.weapon.attack_speed - 3)
+                                    self.player.weapon.attack_speed = max(1, self.player.weapon.attack_speed + 3)
                                 elif choice["upgrade"] == "damage":
                                     self.player.weapon.damage += 5
                             else:
