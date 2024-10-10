@@ -229,6 +229,9 @@ class Game:
                 if self.timer_running:  # Only set to False if it is running
                     self.timer_running = False
 
+            if self.score // 1000 > self.last_score_for_weapon:
+                self.pause_and_show_weapon_choices()
+                self.last_score_for_weapon = self.score // 1000
                 ## Display the Game Over screen
                 #game_over_screen = GameOver(self)
                 #game_over_screen.display()  # Display the game over screen
