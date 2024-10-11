@@ -99,9 +99,9 @@ class Game:
                         self.game_loop()
                         return  # Exit this function and restart the game loop
                     elif event.key == pygame.K_q:
-                        # Quit the game
-                        pygame.quit()
-                        sys.exit()
+                        # Return to main menu
+                        main_menu()
+                        
 
     def pause_and_show_weapon_choices(self):
      # Pause the game
@@ -260,6 +260,8 @@ class Game:
 
             # Check if player's health is 0 to stop the timer
             if self.player.hp <= 0:
+                saveuserdata(self.score, self.kills)
+                self.backgroundmusic.stop()
                 if self.timer_running:  # Only set to False if it is running
                     self.timer_running = False
                     self.game_over_screen()  # Trigger the Game Over screen
@@ -424,6 +426,7 @@ def blit_text(text, textx, texty, size):
 
 def login():
     username = ""
+    click = False
     while True:
 
         SCREEN.fill((75, 135, 180))
