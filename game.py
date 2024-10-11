@@ -267,10 +267,10 @@ class Game:
                     self.game_over_screen()  # Trigger the Game Over screen
                 return 
             
-            if self.score // 1000 > self.last_score_for_weapon:
+            if self.score // 600 > self.last_score_for_weapon:
                 self.levelup.play()
                 self.pause_and_show_weapon_choices()
-                self.last_score_for_weapon = self.score // 1000
+                self.last_score_for_weapon = self.score // 600
                 ## Display the Game Over screen
                 #game_over_screen = GameOver(self)
                 #game_over_screen.display()  # Display the game over screen

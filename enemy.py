@@ -5,8 +5,7 @@ import math
 class Enemy():
     def __init__(self,surfaceW,surfaceH, enemy_type):
         self.rectsizex, self.rectsizey = 30,30
-        self.color = "ORANGE"
-        self.max_hp,self.speed,self.type = self.set_enemy_attributes(enemy_type)
+        self.max_hp,self.speed,self.type,self.color = self.set_enemy_attributes(enemy_type)
         self.hp = self.max_hp
         self.dead = False
         self.edge = random.choice(["left","right","top","bottom"])
@@ -63,8 +62,6 @@ class Enemy():
                 player.hp -=6
                 self.tick = 0
             print(player.hp)
-        else:
-            self.color = "ORANGE"
         self.tick += 1
 
     def damage(self,projectiles,damage):
@@ -79,14 +76,14 @@ class Enemy():
             
 
     def set_enemy_attributes(self, enemy_type):
-        if enemy_type == "weak":
-            return 50, 1.5, "weak"  # HP, Speed
-        elif enemy_type == "normal":
-            return 75, 2, "normal"
-        elif enemy_type == "strong":
-            return 100, 2.8, "strong"
-        else:
-            return 100, 2, "normal"  # Default values
+     if enemy_type == "weak":
+        return 50, 1.5, "weak", "ORANGE"  # HP, Speed, Type, Color
+     elif enemy_type == "normal":
+        return 75, 2, "normal", "YELLOW"
+     elif enemy_type == "strong":
+        return 100, 2.8, "strong", "BLUE"
+     else:
+        return 100, 2, "normal", "YELLOW"
         
     #Update Loop
     def update(self,surface,player,projectile,damage):
