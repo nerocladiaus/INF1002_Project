@@ -82,9 +82,9 @@ class Enemy():
         if enemy_type == "weak":
             return 50, 2, "weak"  # HP, Speed
         elif enemy_type == "normal":
-            return 100, 4, "normal"
+            return 75, 4, "normal"
         elif enemy_type == "strong":
-            return 150, 6, "strong"
+            return 100, 6, "strong"
         else:
             return 100, 4, "normal"  # Default values
         

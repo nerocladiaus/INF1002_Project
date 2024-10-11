@@ -89,6 +89,7 @@ class Player():
         for projectile in self.projectiles:
             if projectile.hitcount >= 2:
                 self.projectiles.remove(projectile)
+                continue
             projectile.update()
             if projectile.rect.x < 0 or projectile.rect.x > 1280 or projectile.rect.y < 0 or projectile.rect.y > 800:
                 self.projectiles.remove(projectile)  # Remove if off screen

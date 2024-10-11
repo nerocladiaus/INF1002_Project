@@ -10,10 +10,6 @@ from userLogin import load_user_data, save_user_data, load_user_total_data, add_
 #from endgame import GameOver  # Import the GameOver class
 
 
-
-
-
-
 def saveuserdata(score, kills):
             users = load_user_data()
             users[current_user] = {"score":score,
@@ -40,7 +36,6 @@ class Game:
         self.data_saved = False
         # Pause
         self.paused = False # Initialize the pause state
-
         self.start_time = pygame.time.get_ticks()  # Time in milliseconds
         self.timer_running = True  # Initialize the timer flag
         self.data_saved = False
@@ -198,10 +193,12 @@ class Game:
         self.enemies = []
         self.enemySpawnTimer = 0
         self.score = 0
-        self.enemySpawnTimermax = 50
+        self.enemySpawnTimermax = 100
         self.kills = 0
         self.enemy_threshold,self. enemy_level = 10, 0
         self.enemy_typelist = ["weak"]
+        self.min_spawn_timer = 75
+        self.spawn_timer_decrease_rate = 1
 
         while self.running:
             for event in pygame.event.get():
@@ -250,6 +247,24 @@ class Game:
 
             #Enemy Spawn Handling
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
+                #Check if spawntimer can decrease
+                print(self.elapsed_time)
+                if self.elapsed_time > 60:
+                    new_spawn_timer = self.enemySpawnTimermax - (self.enemySpawnTimer * self.spawn_timer_decrease_rate)
+                    self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
+                    #print("New Spawn Timer lvl 1")
+                elif self.elapsed_time > 180:
+                    self.min_spawn_timer = 50
+                    new_spawn_timer = self.enemySpawnTimermax - (self.enemySpawnTimer * self.spawn_timer_decrease_rate)
+                    self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
+                    #print("New Spawn Timer lvl 2")
+                #Overwhelm Player at 5 Mins (game Win)
+                elif self.elapsed_time > 250:
+                    self.min_spawn_timer = 16
+                    self.spawn_timer_decrease_rate = 4
+                    new_spawn_timer = self.enemySpawnTimermax - (self.enemySpawnTimer * self.spawn_timer_decrease_rate)
+                    self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
+                    print("New Spawn Timer lvl 3")
                 #Check Kills for current game and allow Higher Enemy Spawn
                 if self.kills >= self.enemy_threshold:
                     if self.enemy_level == 0:
@@ -283,15 +298,19 @@ class Game:
             for enemy in self.enemies:
                 enemy.update(self.screen,self.player,self.player.projectiles)
                 if enemy.dead:
+                    #Check Enemy type and Add score accordingly
+                    if enemy.type == 'weak':
+                        self.score += 50
+                        self.coins += 5
+                    elif enemy.type == 'normal':
+                        self.score += 100
+                        self.coins += 10
+                    elif enemy.type == 'strong':
+                        self.score += 150
+                        self.coins += 15   
                     self.enemies.remove(enemy)
-                    self.score += 100
                     self.kills += 1
-                    self.coins += 10
-                    #print(self.levelspike)
-            
-
-
-
+                        
             """if self.enemySpawnTimermax > 5 and self.levelspike >= 1000:
                 self.enemySpawnTimermax -=5
                 self.levelspike = 0
@@ -511,7 +530,7 @@ def main_menu():
         if OPTIONS_BUTTON.collidepoint((mx, my)):
             if click:
                 options()
-        if QUIT_BUTTON.collidepoint((mx, mx)):
+        if QUIT_BUTTON.collidepoint((mx, my)):
             if click:
                 pygame.quit()
                 sys.exit
