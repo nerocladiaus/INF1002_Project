@@ -25,6 +25,8 @@ class Game:
         self.screen = pygame.Surface((self.screenWidth, self.screenHeight))
         self.running = True
         self.clock = pygame.time.Clock()
+        self.backgroundmusic = pygame.mixer.Sound('game-level-music.wav')
+        self.levelup = pygame.mixer.Sound('levelup.wav')
 
         # Initialize Pygame font module
         pygame.font.init()
@@ -199,21 +201,30 @@ class Game:
         self.enemy_typelist = ["weak"]
         self.min_spawn_timer = 75
         self.spawn_timer_decrease_rate = 1
+        self.backgroundmusic.play(loops=-1)
+        self.backgroundmusic.set_volume(0.5)
 
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
+                    pygame.quit()
+                    sys.exit()
+
                 # Check for pause/unpause
                 if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:  # Press 'Escape' to quit
+                        self.running = False
+                        self.backgroundmusic.stop()
                     if event.key == pygame.K_p:  # Toggle pause with 'P' key
                         self.paused = not self.paused
                         if self.paused:
                             self.timer_running = False  # Stop the timer if paused
+                            self.backgroundmusic.stop()
                         else:
                             # When unpausing, reset the start_time to the current time minus the elapsed time
                             self.start_time = pygame.time.get_ticks() - (self.elapsed_time * 1000)  # Convert seconds to milliseconds
                             self.timer_running = True  # Resume the timer
+                            self.backgroundmusic.play(loops=-1)
 
             if self.paused:
                 self.screen.fill((0, 0, 0))  # Fill the screen with black
@@ -227,6 +238,7 @@ class Game:
                     self.timer_running = False
 
             if self.score // 1000 > self.last_score_for_weapon:
+                self.levelup.play()
                 self.pause_and_show_weapon_choices()
                 self.last_score_for_weapon = self.score // 1000
                 ## Display the Game Over screen
