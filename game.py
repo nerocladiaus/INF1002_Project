@@ -226,8 +226,6 @@ class Game:
         self.enemy_typelist = ["weak"]
         self.min_spawn_timer = 50
         self.spawn_timer_decrease_rate = 1
-        self.backgroundmusic.play(loops=-1)
-        self.backgroundmusic.set_volume(0.5)
         self.start_time = pygame.time.get_ticks()
         self.timer_running = True
 
@@ -628,6 +626,7 @@ def profile():
 
     
 def options():
+    global musicvol
     running = True
     while running:
 
