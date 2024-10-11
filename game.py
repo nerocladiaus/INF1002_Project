@@ -26,6 +26,7 @@ class Game:
         self.running = True
         self.clock = pygame.time.Clock()
         self.levelup = pygame.mixer.Sound('levelup.wav')
+        self.losesound = pygame.mixer.Sound('game_lose.wav')
 
         # Initialize Pygame font module
         pygame.font.init()
@@ -78,6 +79,8 @@ class Game:
 
     def game_over_screen(self):
         # Display the "Game Over" screen
+        self.losesound.play()
+        self.losesound.set_volume(musicvol)
         self.screen.fill((0, 0, 0))  # Fill the screen with black
         game_over_text = "Game Over, press 'R' to restart or 'Q' to exit"
         text_surface = self.font.render(game_over_text, True, (255, 255, 255))  # White text
@@ -95,6 +98,7 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         # Restart the game
+                        backgroundmusic.play(loops=-1)
                         self.game_loop()
                         return  # Exit this function and restart the game loop
                     elif event.key == pygame.K_q:
@@ -270,15 +274,6 @@ class Game:
                 self.levelup.play()
                 self.pause_and_show_weapon_choices()
                 self.last_score_for_weapon = self.score // 1000
-                ## Display the Game Over screen
-                #game_over_screen = GameOver(self)
-                #game_over_screen.display()  # Display the game over screen
-
-                ## Reset health or perform any restart logic
-                #self.player.hp = 100  # Reset player health or any other restart logic
-                #self.score = 0  # Reset score if necessary
-                #self.kills = 0  # Reset kills if necessary
-                #continue  # Skip to the next iteration to avoid further processing
                 
             # Update timer only if it is running
             if self.timer_running:
@@ -509,11 +504,13 @@ def login():
 
         pygame.display.update()
 
-musicvol = 0.5
+musicvol = 0.1
 def main_menu():
     global backgroundmusic
     backgroundmusic = pygame.mixer.Sound('game-level-music.wav')
     backgroundmusic.set_volume(musicvol)
+    backgroundmusic.stop()
+    backgroundmusic.play(loops=-1)
 
     while True:
         SCREEN.fill((75, 135, 180))
@@ -523,8 +520,6 @@ def main_menu():
         hover_color = (100,100,100)
 
         users = load_user_data()
-
-        backgroundmusic.play(loops=-1)
 
         blit_text("MAIN MENU", 640, 50, 70)
         blit_text(f"Logged in as: {current_user}", 640, 650, 35)
