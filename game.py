@@ -77,6 +77,32 @@ class Game:
         coins_rect = coins_surface.get_rect(topleft=(10, 50))
         self.screen.blit(coins_surface, coins_rect)
 
+    def game_over_screen(self):
+        # Display the "Game Over" screen
+        self.screen.fill((0, 0, 0))  # Fill the screen with black
+        game_over_text = "Game Over, press 'R' to restart or 'Q' to exit"
+        text_surface = self.font.render(game_over_text, True, (255, 255, 255))  # White text
+        text_rect = text_surface.get_rect(center=(self.screenWidth // 2, self.screenHeight // 2))
+        self.screen.blit(text_surface, text_rect)
+        self.display.blit(self.screen, (0, 0))
+        pygame.display.flip()  # Update the display
+
+        # Wait for player input to restart or quit
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        # Restart the game
+                        self.game_loop()
+                        return  # Exit this function and restart the game loop
+                    elif event.key == pygame.K_q:
+                        # Quit the game
+                        pygame.quit()
+                        sys.exit()
+
     def pause_and_show_weapon_choices(self):
      # Pause the game
      self.timer_running = False
@@ -236,7 +262,9 @@ class Game:
             if self.player.hp <= 0:
                 if self.timer_running:  # Only set to False if it is running
                     self.timer_running = False
-
+                    self.game_over_screen()  # Trigger the Game Over screen
+                return 
+            
             if self.score // 1000 > self.last_score_for_weapon:
                 self.levelup.play()
                 self.pause_and_show_weapon_choices()
