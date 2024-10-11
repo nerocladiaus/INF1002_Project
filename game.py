@@ -464,14 +464,7 @@ def login():
             
         click = False
 
-
-        
-
         pygame.display.update()
-
-
-
-
 
 def main_menu():
     while True:
@@ -533,7 +526,7 @@ def main_menu():
         if QUIT_BUTTON.collidepoint((mx, my)):
             if click:
                 pygame.quit()
-                sys.exit
+                sys.exit()
 
         click = False
 
@@ -545,11 +538,8 @@ def main_menu():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
-
-
+        
         pygame.display.update()
-
 
 def profile():
     running = True
