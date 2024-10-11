@@ -67,10 +67,10 @@ class Enemy():
             self.color = "ORANGE"
         self.tick += 1
 
-    def damage(self,projectiles):
+    def damage(self,projectiles,damage):
         for projectile in projectiles:
             if self.rect.colliderect(projectile.rect) and self.dmgtick >= 20:
-                self.hp -= 25
+                self.hp -= damage
                 projectile.hitcount += 1
                 if self.hp <= 0:
                     self.dead = True
@@ -89,8 +89,8 @@ class Enemy():
             return 100, 4, "normal"  # Default values
         
     #Update Loop
-    def update(self,surface,player,projectile):
+    def update(self,surface,player,projectile,damage):
         self.move(player)
         self.attack(player)
-        self.damage(projectile)
+        self.damage(projectile,damage)
         self.draw(surface)

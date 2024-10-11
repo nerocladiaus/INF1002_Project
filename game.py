@@ -199,7 +199,7 @@ class Game:
         self.kills = 0
         self.enemy_threshold,self. enemy_level = 10, 0
         self.enemy_typelist = ["weak"]
-        self.min_spawn_timer = 75
+        self.min_spawn_timer = 50
         self.spawn_timer_decrease_rate = 1
         self.backgroundmusic.play(loops=-1)
         self.backgroundmusic.set_volume(0.5)
@@ -261,22 +261,23 @@ class Game:
             if self.enemySpawnTimer >= self.enemySpawnTimermax:
                 #Check if spawntimer can decrease
                 print(self.elapsed_time)
-                if self.elapsed_time > 60:
-                    new_spawn_timer = self.enemySpawnTimermax - (self.enemySpawnTimer * self.spawn_timer_decrease_rate)
+                if self.elapsed_time > 60 and self.elapsed_time < 120:
+                    new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
                     self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
                     #print("New Spawn Timer lvl 1")
-                elif self.elapsed_time > 180:
-                    self.min_spawn_timer = 50
-                    new_spawn_timer = self.enemySpawnTimermax - (self.enemySpawnTimer * self.spawn_timer_decrease_rate)
+                elif self.elapsed_time > 120 and self.elapsed_time < 250:
+                    self.min_spawn_timer = 32
+                    new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
                     self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
                     #print("New Spawn Timer lvl 2")
                 #Overwhelm Player at 5 Mins (game Win)
                 elif self.elapsed_time > 250:
                     self.min_spawn_timer = 16
                     self.spawn_timer_decrease_rate = 4
-                    new_spawn_timer = self.enemySpawnTimermax - (self.enemySpawnTimer * self.spawn_timer_decrease_rate)
+                    new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
                     self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
                     print("New Spawn Timer lvl 3")
+                print(self.enemySpawnTimermax)
                 #Check Kills for current game and allow Higher Enemy Spawn
                 if self.kills >= self.enemy_threshold:
                     if self.enemy_level == 0:
@@ -308,7 +309,7 @@ class Game:
             self.player.playerUpdate(self.screen,mouse_rect,self.screenWidth,self.screenHeight)  
             #self.enemies.update(self.screen,self.screenHeight,self.screenWidth)
             for enemy in self.enemies:
-                enemy.update(self.screen,self.player,self.player.projectiles)
+                enemy.update(self.screen,self.player,self.player.projectiles,self.player.weapon_damage)
                 if enemy.dead:
                     #Check Enemy type and Add score accordingly
                     if enemy.type == 'weak':

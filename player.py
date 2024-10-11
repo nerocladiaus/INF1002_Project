@@ -79,7 +79,7 @@ class Player():
             speed = self.bulletspeed if self.weapon is None else self.weapon.attack_speed
 
             projectile = Projectile(self.rect.centerx, self.rect.centery, direction, speed, damage)
-            print("Projectile spawn")
+            #print("Projectile spawn")
             self.reload = 0
             self.projectiles.append(projectile)
         else:
