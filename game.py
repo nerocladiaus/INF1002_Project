@@ -44,6 +44,7 @@ class Game:
         self.last_score_for_weapon = 0
         self.coins = 0
         self.weapon_purchased = None
+        self.endgame = False
 
     def draw_clock(self):
         if self.timer_running:
@@ -70,6 +71,9 @@ class Game:
         text_surface = self.font.render(score_display, True, (255, 255, 255))  # White text
         text_rect = text_surface.get_rect(topleft=(10, 10))  # Top left corner
         self.screen.blit(text_surface, text_rect)
+
+    
+
 
     def draw_coins(self):
         coins_display = f"Coins: {self.coins}"
@@ -234,100 +238,121 @@ class Game:
 
             # Check if player's health is 0 to stop the timer
             if self.player.hp <= 0:
-                if self.timer_running:  # Only set to False if it is running
-                    self.timer_running = False
+                if not self.endgame:  # Only trigger once when health reaches 0
+                    self.endgame = True
+                    if self.timer_running:  # Stop the timer when health is 0
+                        self.timer_running = False
 
-            if self.score // 1000 > self.last_score_for_weapon:
-                self.levelup.play()
-                self.pause_and_show_weapon_choices()
-                self.last_score_for_weapon = self.score // 1000
-                ## Display the Game Over screen
-                #game_over_screen = GameOver(self)
-                #game_over_screen.display()  # Display the game over screen
+            #if self.endgame:
+                self.draw_endgame()  # Draw the endgame screen
+                pygame.display.flip()  # Update the display
 
-                ## Reset health or perform any restart logic
-                #self.player.hp = 100  # Reset player health or any other restart logic
-                #self.score = 0  # Reset score if necessary
-                #self.kills = 0  # Reset kills if necessary
-                #continue  # Skip to the next iteration to avoid further processing
-                
-            # Update timer only if it is running
-            if self.timer_running:
-                self.elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
-            #else:
-                #self.elapsed_time = 0  # Reset elapsed_time when the timer is stopped
-
-            #Enemy Spawn Handling
-            if self.enemySpawnTimer >= self.enemySpawnTimermax:
-                #Check if spawntimer can decrease
-                print(self.elapsed_time)
-                if self.elapsed_time > 60 and self.elapsed_time < 120:
-                    new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
-                    self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
-                    #print("New Spawn Timer lvl 1")
-                elif self.elapsed_time > 120 and self.elapsed_time < 250:
-                    self.min_spawn_timer = 32
-                    new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
-                    self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
-                    #print("New Spawn Timer lvl 2")
-                #Overwhelm Player at 5 Mins (game Win)
-                elif self.elapsed_time > 250:
-                    self.min_spawn_timer = 16
-                    self.spawn_timer_decrease_rate = 4
-                    new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
-                    self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
-                    print("New Spawn Timer lvl 3")
-                print(self.enemySpawnTimermax)
-                #Check Kills for current game and allow Higher Enemy Spawn
-                if self.kills >= self.enemy_threshold:
-                    if self.enemy_level == 0:
-                        self.enemy_level = 1
-                        self.enemy_typelist.append("normal")
-                        self.enemy_threshold = 20
-                        print("normal Unlocked")
-                    elif self.enemy_level == 1:
-                        self.enemy_level = 2
-                        self.enemy_typelist.append("strong")
-                        print("strong Unlocked")
-                #Choose Enemy Type and Spawn off screen
-                self.enemytype = random.choice(self.enemy_typelist)
-                self.enemies.append(Enemy(self.screenWidth,self.screenHeight, self.enemytype))
-                print(f'Enemy {self.enemytype} spawn')
-                self.enemySpawnTimer = 0
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()  # Quit the game
+                    
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_q:  # Quit the game
+                            pygame.quit()
+                            sys.exit()
+                        #elif event.key == pygame.K_r:  # Restart the game (you need to implement reset logic)
+                            #self.reset_game()  # Call your reset method to restart the game
+                            #self.endgame = False  # Reset the endgame state
             else:
-                self.enemySpawnTimer += 1
-                #print(self.enemySpawnTimer)
-            
-            #Collison Testing Shift to enenmy Class
-            pos = pygame.mouse.get_pos()
-            mouse_rect = pygame.Rect(0, 0, 25, 25)
-            mouse_rect.center = pos
-            
-            #Draw Sprites to game window and updates.
-            self.screen.fill((0,0,0))
-            pygame.draw.rect(self.screen, "BLUE" , mouse_rect)    
-            self.player.playerUpdate(self.screen,mouse_rect,self.screenWidth,self.screenHeight)  
-            #self.enemies.update(self.screen,self.screenHeight,self.screenWidth)
-            for enemy in self.enemies:
-                enemy.update(self.screen,self.player,self.player.projectiles,self.player.weapon_damage)
-                if enemy.dead:
-                    #Check Enemy type and Add score accordingly
-                    if enemy.type == 'weak':
-                        self.score += 50
-                        self.coins += 5
-                    elif enemy.type == 'normal':
-                        self.score += 100
-                        self.coins += 10
-                    elif enemy.type == 'strong':
-                        self.score += 150
-                        self.coins += 15   
-                    self.enemies.remove(enemy)
-                    self.kills += 1
-                        
-            """if self.enemySpawnTimermax > 5 and self.levelspike >= 1000:
-                self.enemySpawnTimermax -=5
-                self.levelspike = 0
-                print("Diffculty inceased")"""
+
+
+                if self.score // 1000 > self.last_score_for_weapon:
+                    self.levelup.play()
+                    self.pause_and_show_weapon_choices()
+                    self.last_score_for_weapon = self.score // 1000
+                    ## Display the Game Over screen
+                    #game_over_screen = GameOver(self)
+                    #game_over_screen.display()  # Display the game over screen
+
+                    ## Reset health or perform any restart logic
+                    #self.player.hp = 100  # Reset player health or any other restart logic
+                    #self.score = 0  # Reset score if necessary
+                    #self.kills = 0  # Reset kills if necessary
+                    #continue  # Skip to the next iteration to avoid further processing
+                    
+                # Update timer only if it is running
+                if self.timer_running:
+                    self.elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
+                #else:
+                    #self.elapsed_time = 0  # Reset elapsed_time when the timer is stopped
+
+                #Enemy Spawn Handling
+                if self.enemySpawnTimer >= self.enemySpawnTimermax:
+                    #Check if spawntimer can decrease
+                    print(self.elapsed_time)
+                    if self.elapsed_time > 60 and self.elapsed_time < 120:
+                        new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
+                        self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
+                        #print("New Spawn Timer lvl 1")
+                    elif self.elapsed_time > 120 and self.elapsed_time < 250:
+                        self.min_spawn_timer = 32
+                        new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
+                        self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
+                        #print("New Spawn Timer lvl 2")
+                    #Overwhelm Player at 5 Mins (game Win)
+                    elif self.elapsed_time > 250:
+                        self.min_spawn_timer = 16
+                        self.spawn_timer_decrease_rate = 4
+                        new_spawn_timer = self.enemySpawnTimermax - self.spawn_timer_decrease_rate
+                        self.enemySpawnTimermax = max(new_spawn_timer, self.min_spawn_timer)
+                        print("New Spawn Timer lvl 3")
+                    print(self.enemySpawnTimermax)
+                    #Check Kills for current game and allow Higher Enemy Spawn
+                    if self.kills >= self.enemy_threshold:
+                        if self.enemy_level == 0:
+                            self.enemy_level = 1
+                            self.enemy_typelist.append("normal")
+                            self.enemy_threshold = 20
+                            print("normal Unlocked")
+                        elif self.enemy_level == 1:
+                            self.enemy_level = 2
+                            self.enemy_typelist.append("strong")
+                            print("strong Unlocked")
+                    #Choose Enemy Type and Spawn off screen
+                    self.enemytype = random.choice(self.enemy_typelist)
+                    self.enemies.append(Enemy(self.screenWidth,self.screenHeight, self.enemytype))
+                    print(f'Enemy {self.enemytype} spawn')
+                    self.enemySpawnTimer = 0
+                else:
+                    self.enemySpawnTimer += 1
+                    #print(self.enemySpawnTimer)
+                
+                #Collison Testing Shift to enenmy Class
+                pos = pygame.mouse.get_pos()
+                mouse_rect = pygame.Rect(0, 0, 25, 25)
+                mouse_rect.center = pos
+                
+                #Draw Sprites to game window and updates.
+                self.screen.fill((0,0,0))
+                pygame.draw.rect(self.screen, "BLUE" , mouse_rect)    
+                self.player.playerUpdate(self.screen,mouse_rect,self.screenWidth,self.screenHeight)  
+                #self.enemies.update(self.screen,self.screenHeight,self.screenWidth)
+                for enemy in self.enemies:
+                    enemy.update(self.screen,self.player,self.player.projectiles,self.player.weapon_damage)
+                    if enemy.dead:
+                        #Check Enemy type and Add score accordingly
+                        if enemy.type == 'weak':
+                            self.score += 50
+                            self.coins += 5
+                        elif enemy.type == 'normal':
+                            self.score += 100
+                            self.coins += 10
+                        elif enemy.type == 'strong':
+                            self.score += 150
+                            self.coins += 15   
+                        self.enemies.remove(enemy)
+                        self.kills += 1
+                            
+                """if self.enemySpawnTimermax > 5 and self.levelspike >= 1000:
+                    self.enemySpawnTimermax -=5
+                    self.levelspike = 0
+                    print("Diffculty inceased")"""
             
             #Draw the timer
             self.draw_clock()
@@ -374,6 +399,15 @@ class Game:
         
         self.display.blit(pause_surface, (0, 0))  # Draw the pause surface onto the display
 
+    def draw_endgame(self):
+        endgame_surface = pygame.Surface((self.screenWidth, self.screenHeight))
+        endgame_surface.fill((0, 0, 0))  # Fill with black
+        endgame_text = "Game Over! Press 'Q' to Quit."
+        text_surface = self.font.render(endgame_text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(self.screenWidth // 2, self.screenHeight // 2))
+        endgame_surface.blit(text_surface, text_rect)
+        
+        self.display.blit(endgame_surface, (0, 0))  # Draw the pause surface onto the display
 
 #Login and Main Menu code
 
