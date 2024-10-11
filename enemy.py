@@ -46,7 +46,7 @@ class Enemy():
         if distance > 0:  # Avoid division by zero
             dx /= distance
             dy /= distance
-            self.rect.move_ip(dx * 2, dy * 2)
+            self.rect.move_ip(dx * self.speed, dy * self.speed)
     
     def attack(self,player):
         if self.rect.colliderect(player) and self.tick >= 32:
@@ -69,7 +69,7 @@ class Enemy():
 
     def damage(self,projectiles,damage):
         for projectile in projectiles:
-            if self.rect.colliderect(projectile.rect) and self.dmgtick >= 20:
+            if self.rect.colliderect(projectile.rect) and self.dmgtick >= 10:
                 self.hp -= damage
                 projectile.hitcount += 1
                 if self.hp <= 0:
@@ -80,13 +80,13 @@ class Enemy():
 
     def set_enemy_attributes(self, enemy_type):
         if enemy_type == "weak":
-            return 50, 2, "weak"  # HP, Speed
+            return 50, 1.5, "weak"  # HP, Speed
         elif enemy_type == "normal":
-            return 75, 4, "normal"
+            return 75, 2, "normal"
         elif enemy_type == "strong":
-            return 100, 6, "strong"
+            return 100, 2.8, "strong"
         else:
-            return 100, 4, "normal"  # Default values
+            return 100, 2, "normal"  # Default values
         
     #Update Loop
     def update(self,surface,player,projectile,damage):
